@@ -22,5 +22,10 @@
     "handlebars": "~1.0.8",
     "eco": "~1.1.0-rc-3"
   },
-  "license": "BSD"
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://github.com/walmartlabs/hapi/raw/master/LICENSE"
+    }
+  ]
 }
