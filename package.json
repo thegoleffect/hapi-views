@@ -1,6 +1,7 @@
 {
   "name": "hapi-views",
   "version": "0.0.0",
+  "author": "Van Nguyen <thegoleffect@gmail.com>",
   "description": "tests for generalized template engine support in hapi",
   "main": "index.js",
   "scripts": {
@@ -10,6 +11,16 @@
     "type": "git",
     "url": "git://github.com/thegoleffect/hapi-views.git"
   },
-  "author": "Van Nguyen <thegoleffect@gmail.com>",
+  "dependencies": {
+    "hapi": ">= 0.11.3"
+  },
+  "devDependencies": {
+    "chai": "~1.4.2",
+    "mocha": "~1.8.1",
+    "underscore": "~1.4.3",
+    "jade": "~0.28.1",
+    "handlebars": "~1.0.8",
+    "eco": "~1.1.0-rc-3"
+  },
   "license": "BSD"
 }
