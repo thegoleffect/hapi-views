@@ -1,12 +1,15 @@
 var Chai = require('chai');
 var Hapi = require('hapi');
 var Path = require('path');
+var Fs = require('fs');
 var Utils = Hapi.Utils;
 var expect = Chai.expect;
 
 // harness = "meta" internals
 
 var harness = {};
+
+harness.tests = {};
 
 
 harness.capitalize = function (str) {
@@ -37,6 +40,28 @@ exports = module.exports = harness.Harness = function (fixture, settings) {
     this.fixture.extension = this.fixture.extension || this.fixture.name;
 };
 
+// Auto-load tests
+
+(function() {
+
+    var files = Fs.readdirSync(__dirname);
+    for(var i in files) {
+        var file = files[i];
+        var name = Path.basename(file, '.js');
+        
+        if (file.indexOf('.js') < 0) {
+            continue; // skip non .js files
+        }
+        
+        if (file == 'index.js') {
+            continue; // skip this file
+        }
+        
+        harness.tests[name] = 1;
+        harness.Harness.prototype[name] = require(Path.join(__dirname, file));
+    }
+})();
+
 
 harness.Harness.prototype._defaultSettings = {
     path: '',
@@ -46,8 +71,10 @@ harness.Harness.prototype._defaultSettings = {
 
 harness.Harness.prototype.run = function () {
 
+    var self = this;
     var fixture = this.fixture;
     var internals = {};
+    internals.counts = {};
     
     internals.engine = require(fixture.module);
     internals.viewPath = this.settings.viewPath + fixture.views;
@@ -56,11 +83,6 @@ harness.Harness.prototype.run = function () {
         message: "Hello, World"
     };
     Utils.merge(internals.ctx, fixture.ctx);
-    internals.handler = function (request) {
-
-        request.reply.view('index', internals.ctx).send();
-    };
-
     internals.desc = harness.capitalize(fixture.name) + ' templating engine';
     internals.test = function () {
 
@@ -75,19 +97,32 @@ harness.Harness.prototype.run = function () {
             map: fixture.map
         };
         
-        var server = new Hapi.Server(options);
-        server.addRoute({ method: 'GET', path: internals.urlPath, config: { handler: internals.handler } });
+        // Set options if the test requires it
+        
+        if (!internals.counts['init']) {
+            internals.counts['init'] = 0;
+            Object.keys(harness.tests)
+                .forEach(function(el, i, arr) {
+                    if (self[el].hasOwnProperty('init')) {
+                        self[el].init(fixture, options, internals);
+                        ++internals.counts['init'];
+                    }
+                });
+        }
+        
+        internals.server = new Hapi.Server(options);
 
-        it('should render basic template', function (done) {
-
-            server.inject({ method: 'GET', url: internals.urlPath }, function (res) {
-
-                expect(res.result).to.exist;
-                expect(res.result).to.contain(internals.ctx.message);
-                expect(res.statusCode).to.equal(200);
-                done();
-            });
-        });
+        // Add tests
+        
+        if (!internals.counts['tests']) {
+            internals.counts['tests'] = {};
+            Object.keys(harness.tests)
+                .forEach(function(el, i, arr) {
+                    // console.log('adding test', el)
+                    self[el](fixture, internals, expect);
+                    internals.counts['tests'][el] = 1;
+                });
+        }
     };
 
     describe(internals.desc, internals.test);
@@ -95,3 +130,10 @@ harness.Harness.prototype.run = function () {
     return internals;
 };
 
+module.exports.getEngines = function (path) {
+
+    var files = Fs.readdirSync(path);
+    return files.map(function(d){
+        return d.slice(0, -3);
+    });
+};
