@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <title>Eco Templates</title>
+  </head>
+  <body>
+    <div>
+      <h1>Eco Templates</h1>
+      <p><%= @message %></p>
+    </div>
+  </body>
+</html>
