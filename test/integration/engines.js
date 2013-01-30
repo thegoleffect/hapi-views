@@ -8,6 +8,7 @@ var engines = [
 ];
 var options = {
     path: __dirname + '/fixtures/',
+    viewPath: __dirname + '/../support/views/'
 };
 
 

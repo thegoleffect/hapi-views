@@ -4,6 +4,7 @@ var Path = require('path');
 var Utils = Hapi.Utils;
 var expect = Chai.expect;
 
+// harness = "meta" internals
 
 var harness = {};
 
@@ -25,10 +26,12 @@ exports = module.exports = harness.Harness = function (fixture, settings) {
             this.fixture = require(filename);
         }
         catch (e) {
-            console.log('no such fixture found for', this.fixture)
+            console.log('[WARN]: no such fixture found for', this.fixture)
             this.run = function(){};
         }
     }
+    
+    // Set some parametric default behaviors
     
     this.fixture.module = this.fixture.module || this.fixture.name;
     this.fixture.extension = this.fixture.extension || this.fixture.name;
@@ -37,7 +40,7 @@ exports = module.exports = harness.Harness = function (fixture, settings) {
 
 harness.Harness.prototype._defaultSettings = {
     path: '',
-    viewPath: '/../support/views/'
+    viewPath: ''
 };
 
 
@@ -47,7 +50,7 @@ harness.Harness.prototype.run = function () {
     var internals = {};
     
     internals.engine = require(fixture.module);
-    internals.viewPath = __dirname + this.settings.viewPath + fixture.views;
+    internals.viewPath = this.settings.viewPath + fixture.views;
     internals.urlPath = '/' + fixture.name;
     internals.ctx = {
         message: "Hello, World"
@@ -74,7 +77,6 @@ harness.Harness.prototype.run = function () {
         
         var server = new Hapi.Server(options);
         server.addRoute({ method: 'GET', path: internals.urlPath, config: { handler: internals.handler } });
-
 
         it('should render basic template', function (done) {
 
