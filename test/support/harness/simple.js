@@ -7,7 +7,7 @@ module.exports = function (fixture, internals, expect) {
     internals.simpleUrlPath = internals.urlPath;
     internals.server.addRoute({ method: 'GET', path: internals.simpleUrlPath, config: { handler: internals.simpleTemplateHandler } });
     
-    it('should render complex template', function (done) {
+    it('should render simple template', function (done) {
 
         internals.server.inject({ method: 'GET', url: internals.simpleUrlPath }, function (res) {
 

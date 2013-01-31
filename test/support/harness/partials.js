@@ -10,6 +10,8 @@ module.exports = function (fixture, internals, expect) {
         internals.partialsUrlPath = internals.urlPath + '/partials';
         internals.server.addRoute({ method: 'GET', path: internals.partialsUrlPath, config: { handler: internals.partialsTemplateHandler } });
         
+        // console.log("engines", internals.server.views.engines._e.html)
+        
         it('should render partials template', function (done) {
 
             internals.server.inject({ method: 'GET', url: internals.partialsUrlPath }, function (res) {

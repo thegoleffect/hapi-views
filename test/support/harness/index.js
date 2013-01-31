@@ -89,6 +89,7 @@ harness.Harness.prototype.run = function () {
         var options = {
             views: {
                 path: internals.viewPath,
+                cache: false,
                 engines: {}
             },
         };
@@ -118,7 +119,6 @@ harness.Harness.prototype.run = function () {
             internals.counts['tests'] = {};
             Object.keys(harness.tests)
                 .forEach(function(el, i, arr) {
-                    // console.log('adding test', el)
                     self[el](fixture, internals, expect);
                     internals.counts['tests'][el] = 1;
                 });
